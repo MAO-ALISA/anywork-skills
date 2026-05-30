@@ -1,0 +1,34 @@
+defaults:
+  ssh_port: 22
+  connect_timeout: 10
+  command_timeout: 600
+  image: "registry.example.com/team/inference:latest"
+  container_name: "npu-inference-service"
+  create_command: "docker run -d --name {container_name} --restart unless-stopped --network host {image} tail -f /dev/null"
+  workdir: "/workspace/service"
+  start_script: "./start.sh"
+  healthcheck: "curl -fsS http://127.0.0.1:8000/health"
+  npu_status_command: "if command -v npu-smi >/dev/null 2>&1; then npu-smi info; elif command -v nvidia-smi >/dev/null 2>&1; then nvidia-smi --query-gpu=utilization.gpu,memory.used --format=csv,noheader,nounits; else echo NPU_CHECK_UNAVAILABLE; fi"
+  npu_busy_threshold_percent: 10
+  process_snapshot_command: "ps -eo user,pid,pcpu,pmem,comm --sort=-pcpu | head -20"
+
+hosts:
+  - name: "npu-01"
+    ip: "10.0.0.1"
+    username: "deploy"
+    password_file: "D:/secure/npu-01.password"
+    tags:
+      cluster: "prod-a"
+      model_group: "qwen"
+      npu_type: "ascend"
+    start_script: "./start_rank0.sh"
+
+  - name: "npu-02"
+    ip: "10.0.0.2"
+    username: "deploy"
+    key_file: "D:/secure/id_ed25519"
+    tags:
+      cluster: "prod-a"
+      model_group: "qwen"
+      npu_type: "ascend"
+    start_script: "./start_rank1.sh"

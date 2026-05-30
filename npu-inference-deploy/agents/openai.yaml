@@ -1,0 +1,4 @@
+interface:
+  display_name: "NPU Inference Deploy"
+  short_description: "Safe SSH deployment for NPU services."
+  default_prompt: "Use $npu-inference-deploy to plan and run a safe NPU inference service deployment from my hosts.yaml inventory."
